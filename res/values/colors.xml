@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="chosen_artist_background" >#80ff0000</color>
+    <color name="unchosen_artist_background" >#10ff0000</color>
+    
+    <color name="chosen_album_background" >#800000ff</color>
+    <color name="unchosen_album_background" >#100000ff</color>
+    <dimen name="row_height">40sp</dimen>
+</resources>

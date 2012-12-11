@@ -1,0 +1,33 @@
+
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout android:id="@+id/artistAlbumArts"  
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/row_height"
+            android:orientation="horizontal"> 
+            
+	        <TextView
+	            android:id="@+id/artistName"
+	            android:layout_width="0dp"
+	            android:layout_height="fill_parent"
+	            android:layout_gravity="left|fill_horizontal"
+		        android:gravity="center_vertical"
+		        android:layout_weight="100"
+	            android:textSize="22sp"
+	            android:text=""
+	            android:background="@color/unchosen_artist_background" />
+	        
+		</LinearLayout>
+		
+        <LinearLayout
+            android:id="@+id/artistsAlbums"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+    </LinearLayout>
