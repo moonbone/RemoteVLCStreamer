@@ -4,7 +4,6 @@ import java.util.TreeSet;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Paint.Join;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +27,12 @@ public class MusicTabFragment extends Fragment
 {
 	private TreeSet<Long> m_chosen;
 	
+	public void onActivityCreated(Bundle b)
+	{
+		super.onActivityCreated(b);
+		getView().invalidate();
+	}
+	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		m_chosen = new TreeSet<Long>();
@@ -41,7 +46,8 @@ public class MusicTabFragment extends Fragment
 		ListView lView = (ListView)view.findViewById(R.id.artistsLists);
 		lView.addHeaderView(new AllAlbumsView(view.getContext()));
 		lView.setAdapter(adapter);
-				
+		
+		
 		return view;
 	}
 	public class ArtistsSimpleCursorAdapter extends SimpleCursorAdapter
@@ -64,11 +70,13 @@ public class MusicTabFragment extends Fragment
 			ArtistView v;
 	        if (convertView == null)
 	        {
+	        	Log.d("View","creating new");
 	            v = (ArtistView)newView(parent.getContext(), getCursor(), parent);
 				v.setArtistID(getCursor().getLong(1));
 	        } 
 	        else 
 	        {
+	        	Log.d("View","converting existing.");
 	        	v = (ArtistView)convertView;
 	        	v.terminateThread();
 	        	Long aID = Long.valueOf(v.getArtistID());
@@ -87,26 +95,7 @@ public class MusicTabFragment extends Fragment
 	        }
 	        bindView(v, parent.getContext(), getCursor());
 	        v.refreshState();
-	        
-	        if(convertView == null)
-	        {
-	        	try
-	        	{
-		        	if(null != v.m_thread)
-		        	{
-		        		v.m_thread.join();
-		        	}
-		        	else
-		        	{
-		        		Log.d("BLA","Null");//Empty
-		        	}
-	        	}
-	        	catch(InterruptedException e)
-	        	{
-	        		Log.d("BLA","BLA");//Empty
-	        	}
-	        }
-
+	      
 	        return v;
 		    
 		}
@@ -140,6 +129,8 @@ public class MusicTabFragment extends Fragment
 		protected Uri m_albumsURI;
 		protected long m_artistID;
 		protected Thread m_thread;
+		protected LinearLayout m_row;
+		protected Handler m_handler;
 
 		public ArtistView(Context context) {
 			super(context);
@@ -153,7 +144,8 @@ public class MusicTabFragment extends Fragment
 				
 				@Override
 				public void onClick(View v) {
-					flipState();
+					Log.d("Artist ID",Long.toString(m_artistID));
+					flipState();					
 				}
 			});
 
@@ -211,65 +203,43 @@ public class MusicTabFragment extends Fragment
 			{
 				m_thread.interrupt();
 			}
+			if(null != m_handler)
+			{
+				m_handler.removeMessages(0);
+			}
+			
 		}
 		protected void showAlbumsArts()
 		{
-			final LinearLayout row = (LinearLayout)findViewById(R.id.artistAlbumArts);
-			row.removeViews(1, row.getChildCount()-1);
-			final int lastAID = (int)m_artistID;
+			m_row = (LinearLayout)findViewById(R.id.artistAlbumArts);
+			m_row.removeViews(1, m_row.getChildCount()-1);
 			
-			long availableSize = row.getMeasuredWidth() - (long)((TextView)row.getChildAt(0)).getPaint().measureText(((TextView)row.getChildAt(0)).getText().toString()) - 120;
-			final int numberOfArtsToShow = (int)(availableSize / row.getMeasuredHeight());
+			Log.d("showAlbums",Long.toString(m_artistID) + " " + ((TextView)m_row.getChildAt(0)).getText().toString());
 			
+			long availableSize = m_row.getMeasuredWidth() - (long)((TextView)m_row.getChildAt(0)).getPaint().measureText(((TextView)m_row.getChildAt(0)).getText().toString()) - 120;
+			int numberOfArtsToShow = (int)(availableSize / m_row.getMeasuredHeight());
+			Log.d("numberOfArtsToShow",Integer.toString(numberOfArtsToShow));
 			if(0 < numberOfArtsToShow)
 			{
-				final Handler handler = new Handler() {
+				m_handler = new Handler() {
 		            @Override
-		            public void handleMessage(Message message) {
-		            	if((int)((ArtistView)row.getParent().getParent()).m_artistID == message.what)
-		            	{
-		            		row.addView((ImageView)message.obj);
-		            	}
-		            }
-		        };
+		            public void handleMessage(Message message)
+		            {
+		            	Log.d("what",Long.toString(message.what));
 
-		        m_thread = new Thread() {
-		            @Override
-		            public void run() {
-		            	try
-		            	{
-		            		sleep(250);
-		            	
-			            	int i = numberOfArtsToShow;
-							final Cursor albumsCursor = getActivity().getContentResolver().query(m_albumsURI, new String[]{Audio.Albums.ALBUM_ART},null,null,null);
-							albumsCursor.moveToFirst();
-							while (0 < i && !albumsCursor.isAfterLast())
-							{
-								if (isInterrupted())
-								{
-									albumsCursor.close();
-									return;
-								}
-								ImageView iv = new ImageView(getContext());
-								iv.setAdjustViewBounds(true);
-								iv.setImageDrawable(Drawable.createFromPath(albumsCursor.getString(0)));
-								//fetchDrawableOnThread(albumsCursor.getString(0), iv);
-								Message message = handler.obtainMessage(lastAID, iv);
-					            handler.sendMessage(message);
-								//row.addView(iv);
-								
-								albumsCursor.moveToNext();
-								--i;
-							}
-							albumsCursor.close();
-		            	}
-		            	catch(InterruptedException e)
-		            	{
-		            		return;
-		            	}
-		           }
+		            	LinearLayout _row = (LinearLayout)((Object[])message.obj)[0];
+		            	ImageView _iv = (ImageView)((Object[])message.obj)[1];
+		           		_row.addView(_iv);
+		       
+		            }
+		           
 		        };
+		       		        
+		        Log.d("BLA","Creating Thread.");
+		        m_thread = new AlbumArtsBackgroundLoader(m_handler, m_albumsURI, numberOfArtsToShow,getActivity().getContentResolver() , m_row);
+		        Log.d("BLA","Starting Thread.");
 		        m_thread.start();
+		        //try{m_thread.join();}catch (InterruptedException e){}
 			}
 		}
 
