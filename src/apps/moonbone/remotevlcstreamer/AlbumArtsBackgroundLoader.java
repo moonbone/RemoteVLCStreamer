@@ -35,7 +35,7 @@ public class AlbumArtsBackgroundLoader extends Thread {
     	try
     	{
     		
-    		Log.d("thread","Started.");
+    		Log.d("Thread","Started.");
     		sleep(350);
     		
         	Cursor albumsCursor = m_resolver.query(m_albumsURI, new String[]{Audio.Albums.ALBUM_ART},null,null,null);
@@ -62,10 +62,10 @@ public class AlbumArtsBackgroundLoader extends Thread {
     	}
     	catch(InterruptedException e)
     	{
-    		Log.d("thread","Interrupted: "+ e.toString());
+    		Log.d("Thread","Interrupted: "+ e.toString());
     		return;
     	}
-    	Log.d("thread","Finished.");
+    	Log.d("Thread","Finished.");
    }
 }
 
