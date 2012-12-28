@@ -5,5 +5,8 @@
     
     <color name="chosen_album_background" >#800000ff</color>
     <color name="unchosen_album_background" >#100000ff</color>
+    
+    <color name="chosen_title_background" >#8000ff00</color>
+    <color name="unchosen_title_background" >#1000ff00</color>
     <dimen name="row_height">40sp</dimen>
 </resources>

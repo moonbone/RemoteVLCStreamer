@@ -8,6 +8,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_fragment_music_tab">MusicTab</string>
+    <string name="title_section_chosen_titles_tab">Selected Titles</string>
     <string name="all_titles">All Titles</string>
     <string name="all_albums">All Albums</string>
     <string name="all_artists">All Artists</string>

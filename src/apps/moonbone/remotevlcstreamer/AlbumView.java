@@ -10,17 +10,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class AlbumView extends LinearLayout
 {
 	protected long m_albumID;
 	protected boolean m_expanded;
+	protected MusicTabFragment m_mtf;
 	
-	AlbumView(Context context)
+	AlbumView(Context context,MusicTabFragment mtf)
 	{
 		super(context);
-		m_expanded = false;	
+		m_expanded = false;
+		m_mtf = mtf;
 		
 		((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.music_artist_album_list_item_layout, this,true);
 		
@@ -86,18 +87,8 @@ public class AlbumView extends LinearLayout
 		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext())
 		{
 
-			View titleView = LayoutInflater.from(getContext()).inflate(R.layout.music_title_layout,albumLayout,false);
+			View titleView = new TitleView(getContext(), cursor.getLong(1), (MainActivity)m_mtf.getActivity());//LayoutInflater.from(getContext()).inflate(R.layout.music_title_layout,albumLayout,false);
 			((TextView)titleView.findViewById(R.id.title_name)).setText(cursor.getString(0));
-			titleView.setOnClickListener(new OnClickListener()
-			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					Toast.makeText(getContext(),"bla", Toast.LENGTH_SHORT).show();	
-				}
-			});
-			
 			
 			albumLayout.addView(titleView);
 		}

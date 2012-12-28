@@ -4,47 +4,35 @@ import java.util.TreeSet;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Audio;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class MusicTabFragment extends Fragment 
 {
-	private TreeSet<Long> m_chosen;
+	protected TreeSet<Long> m_chosen;
 	
-	public void onActivityCreated(Bundle b)
-	{
-		super.onActivityCreated(b);
-		getView().invalidate();
-	}
+
+	
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		m_chosen = new TreeSet<Long>();
+		m_chosen = ((MainActivity)getActivity()).getChosenTitlesSet();
 		
 		View view = inflater.inflate(R.layout.fragment_music_tab,container,false);
 		
 		Cursor artistsCursor = getActivity().getContentResolver().query(Audio.Artists.EXTERNAL_CONTENT_URI, new String[]{Audio.Artists.ARTIST,Audio.Artists._ID}, null, null,Audio.Artists.ARTIST);
 		
-		SimpleCursorAdapter adapter = new ArtistsSimpleCursorAdapter(view.getContext(), R.layout.music_artist_list_item_layout, artistsCursor, new String[]{Audio.Artists.ARTIST},new int[]{R.id.artistName},0 );
+		SimpleCursorAdapter adapter = new ArtistsSimpleCursorAdapter(view.getContext(), R.layout.music_artist_list_item_layout, artistsCursor, new String[]{Audio.Artists.ARTIST},new int[]{R.id.artistName},0,this );
 		
 		ListView lView = (ListView)view.findViewById(R.id.artistsLists);
-		lView.addHeaderView(new AllAlbumsView(view.getContext()));
+		lView.addHeaderView(new AllAlbumsView(view.getContext(),this));
 		lView.setAdapter(adapter);
 		
 		
@@ -53,11 +41,13 @@ public class MusicTabFragment extends Fragment
 	public class ArtistsSimpleCursorAdapter extends SimpleCursorAdapter
 	{
 		private TreeSet<Long> m_expanded;
+		private MusicTabFragment m_mtf; 
 
-		public ArtistsSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to,int flags)
+		public ArtistsSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to,int flags, MusicTabFragment mtf)
 		{
 			super(context, layout, c, from, to,flags);
 			m_expanded = new TreeSet<Long>();
+			m_mtf = mtf;
 		}
 		
 		//	@Override
@@ -102,7 +92,7 @@ public class MusicTabFragment extends Fragment
 		
 		public View newView(Context context, Cursor c, ViewGroup vg)
 		{
-			ArtistView av = new ArtistView(context);
+			ArtistView av = new ArtistView(context,m_mtf);
 			return av;
 		}
 		

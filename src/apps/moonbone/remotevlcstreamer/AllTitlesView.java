@@ -12,8 +12,8 @@ public class AllTitlesView extends AlbumView
 {
 	private long m_artistID;
 	
-	AllTitlesView(Context context) {
-		super(context);
+	AllTitlesView(Context context,MusicTabFragment mtf) {
+		super(context,mtf);
 		m_albumID = 0;
 	}
 	

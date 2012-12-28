@@ -25,11 +25,13 @@ public class ArtistView extends LinearLayout
 	protected Thread m_thread;
 	protected LinearLayout m_row;
 	protected Handler m_handler;
+	protected MusicTabFragment m_mtf;
 
-	public ArtistView(Context context) {
+	public ArtistView(Context context,MusicTabFragment mtf) {
 		super(context);
 
 		m_expanded = false;
+		m_mtf = mtf;
 
 		((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.music_artist_list_item_layout, this,true);
 		
@@ -121,7 +123,7 @@ public class ArtistView extends LinearLayout
 		Log.d("showAlbums",Long.toString(m_artistID) + " " + ((TextView)m_row.getChildAt(0)).getText().toString());
 		
 		//calculate the size available for album arts: row width minus the width of the TextView's text. (minus some margin)
-		long availableSize = metrics.widthPixels - (long)((TextView)m_row.getChildAt(0)).getPaint().measureText(((TextView)m_row.getChildAt(0)).getText().toString()) - 120;
+		long availableSize = metrics.widthPixels - (long)((TextView)m_row.getChildAt(0)).getPaint().measureText(((TextView)m_row.getChildAt(0)).getText().toString());
 				
 		//decide exactly how many arts will be shown. assumes arts are squares and therefore has the width the same as the row's height.
 		int numberOfArtsToShow = (int)(availableSize / getResources().getDimension(R.dimen.row_height));
@@ -156,7 +158,7 @@ public class ArtistView extends LinearLayout
 	public void addAllTitlesView()
 	{
 		LinearLayout artistLayout = (LinearLayout)findViewById(R.id.artistsAlbums);
-		AllTitlesView aav = new AllTitlesView(getContext());
+		AllTitlesView aav = new AllTitlesView(getContext(),m_mtf);
 		aav.setArtistID(m_artistID);
 		((TextView)aav.findViewById(R.id.albumName)).setText(R.string.all_titles);
 		
@@ -177,7 +179,7 @@ public class ArtistView extends LinearLayout
 		
 		for(albumsCursor.moveToFirst();!albumsCursor.isAfterLast();albumsCursor.moveToNext())
 		{
-			View albumView = new AlbumView(getContext());
+			View albumView = new AlbumView(getContext(),m_mtf);
 			((TextView)albumView.findViewById(R.id.albumName)).setText(albumsCursor.getString(0));
 			((AlbumView)albumView).setAlbumID(albumsCursor.getLong(1));
 			

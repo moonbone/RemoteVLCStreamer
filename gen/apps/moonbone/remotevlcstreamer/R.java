@@ -13,8 +13,10 @@ public final class R {
     public static final class color {
         public static final int chosen_album_background=0x7f040002;
         public static final int chosen_artist_background=0x7f040000;
+        public static final int chosen_title_background=0x7f040004;
         public static final int unchosen_album_background=0x7f040003;
         public static final int unchosen_artist_background=0x7f040001;
+        public static final int unchosen_title_background=0x7f040005;
     }
     public static final class dimen {
         public static final int row_height=0x7f050000;
@@ -47,9 +49,9 @@ public final class R {
         public static final int fragment_music_tab=0x7f080001;
     }
     public static final class string {
-        public static final int all_albums=0x7f060008;
-        public static final int all_artists=0x7f060009;
-        public static final int all_titles=0x7f060007;
+        public static final int all_albums=0x7f060009;
+        public static final int all_artists=0x7f06000a;
+        public static final int all_titles=0x7f060008;
         public static final int app_name=0x7f060000;
         public static final int hello_world=0x7f060004;
         public static final int menu_settings=0x7f060005;
@@ -57,6 +59,7 @@ public final class R {
         public static final int title_section1=0x7f060003;
         public static final int title_section2=0x7f060002;
         public static final int title_section3=0x7f060001;
+        public static final int title_section_chosen_titles_tab=0x7f060007;
     }
     public static final class style {
         /** 

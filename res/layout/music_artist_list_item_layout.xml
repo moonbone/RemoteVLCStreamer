@@ -2,12 +2,12 @@
     
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/row_height"
+        android:layout_height="fill_parent"
         android:orientation="vertical" >
 
         <LinearLayout android:id="@+id/artistAlbumArts"  
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="@dimen/row_height"
             android:orientation="horizontal"> 
             
 	        <TextView
@@ -19,6 +19,7 @@
 		        android:layout_weight="100"
 	            android:textSize="22sp"
 	            android:text=""
+	            android:singleLine="true"
 	            android:background="@color/unchosen_artist_background" />
 	        
 		</LinearLayout>

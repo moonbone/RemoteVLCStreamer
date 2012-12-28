@@ -10,6 +10,7 @@
         android:layout_height="fill_parent"
         android:layout_gravity="left|fill_horizontal"
         android:layout_weight="100"
+        android:background="@color/unchosen_title_background"
         />
 	
 </LinearLayout>

@@ -1,5 +1,7 @@
 package apps.moonbone.remotevlcstreamer;
 
+import java.util.TreeSet;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -7,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,6 +29,32 @@ public class MainActivity extends FragmentActivity {
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
+	
+	TreeSet<Long> m_chosenTitles;
+	
+	ChosenTitlesFragment m_chosenTab;
+	
+	public boolean getChosenState(long id)
+	{
+		return m_chosenTitles.contains(Long.valueOf(id));
+	}
+	
+	public void setChosenState(long id,boolean state)
+	{
+		if(state)
+		{
+			m_chosenTitles.add(Long.valueOf(id));
+		}
+		else
+		{
+			m_chosenTitles.remove(Long.valueOf(id));
+		}
+	}
+	
+	public TreeSet<Long> getChosenTitlesSet()
+	{
+		return m_chosenTitles;
+	}
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -35,6 +64,10 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		m_chosenTitles = new TreeSet<Long>();
+		
+		
 		setContentView(R.layout.activity_main);
 
 		// Create the adapter that will return a fragment for each of the three
@@ -52,6 +85,32 @@ public class MainActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_main, menu);
+		
+		mViewPager.setOnPageChangeListener(new OnPageChangeListener()
+		{
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onPageSelected(int arg0) {
+				// TODO Auto-generated method stub
+				if(null != m_chosenTab && arg0 == 1)
+				{
+					m_chosenTab.repopulateFragmentView();
+				}
+			}
+			
+		});
 		return true;
 	}
 
@@ -60,7 +119,8 @@ public class MainActivity extends FragmentActivity {
 	 * one of the sections/tabs/pages.
 	 */
 	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
+		
+		
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
@@ -73,6 +133,12 @@ public class MainActivity extends FragmentActivity {
 				
 				return fragment;
 				
+			}
+			else if(position == 1)
+			{
+				m_chosenTab = new ChosenTitlesFragment();
+				
+				return m_chosenTab;
 			}
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a DummySectionFragment (defined as a static inner class
@@ -89,20 +155,21 @@ public class MainActivity extends FragmentActivity {
 			// Show 3 total pages.
 			return 3;
 		}
-
+		
 		@Override
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
 			case 0:
 				return getString(R.string.title_fragment_music_tab).toUpperCase();
 			case 1:
-				return getString(R.string.title_section2).toUpperCase();
+				return getString(R.string.title_section_chosen_titles_tab).toUpperCase();
 			case 2:
 				return getString(R.string.title_section3).toUpperCase();
 			}
 			return null;
 		}
 	}
+	
 	
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
