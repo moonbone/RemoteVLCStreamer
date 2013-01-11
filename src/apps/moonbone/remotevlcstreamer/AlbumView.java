@@ -80,15 +80,33 @@ public class AlbumView extends LinearLayout
 		}
 		invalidate();
 	}
-	protected void populateTitlesListImpl(Cursor cursor)
+	protected void populateTitlesListImpl(Cursor titleCursor)
 	{
 		LinearLayout albumLayout = (LinearLayout)findViewById(R.id.albumsTitles);
 		
-		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext())
+		View addAllTitlesButton = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.music_title_layout, albumLayout,false);
+		((TextView)addAllTitlesButton.findViewById(R.id.title_name)).setText("Add All");
+		addAllTitlesButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				for(int i=1;i < ((LinearLayout)v.getParent()).getChildCount() ;++i)
+				{
+					 TitleView t = (TitleView)((LinearLayout)v.getParent()).getChildAt(i);
+					 t.flipState();
+				}
+				
+			}
+		});
+		
+		albumLayout.addView(addAllTitlesButton);
+		
+		for(titleCursor.moveToFirst();!titleCursor.isAfterLast();titleCursor.moveToNext())
 		{
 
-			View titleView = new TitleView(getContext(), cursor.getLong(1), (MainActivity)m_mtf.getActivity());//LayoutInflater.from(getContext()).inflate(R.layout.music_title_layout,albumLayout,false);
-			((TextView)titleView.findViewById(R.id.title_name)).setText(cursor.getString(0));
+			View titleView = new TitleView(getContext(), titleCursor.getLong(1), (MainActivity)m_mtf.getActivity());//LayoutInflater.from(getContext()).inflate(R.layout.music_title_layout,albumLayout,false);
+			((TextView)titleView.findViewById(R.id.title_name)).setText(titleCursor.getString(0));
 			
 			albumLayout.addView(titleView);
 		}
@@ -99,16 +117,18 @@ public class AlbumView extends LinearLayout
 		((TextView)findViewById(R.id.albumName)).setBackgroundColor(getResources().getColor(R.color.chosen_album_background));
 		((LinearLayout)findViewById(R.id.albumsTitles)).removeAllViews();
 
-		Cursor titlesCursor = getContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+		Cursor titleCursor = getContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
 				new String[]{Audio.Media.TITLE, Audio.Media._ID,Audio.Media.ALBUM_ID},
 				Audio.Media.ALBUM_ID + " =?",
 				new String[]{Long.toString(m_albumID)},
 				Audio.Media.TRACK
 				);
 		
-		populateTitlesListImpl(titlesCursor);
+		populateTitlesListImpl(titleCursor);
+		
+		titleCursor.close();
 							
-		titlesCursor.close();
+		
 	}
 	
 	public void hideTitlesList()

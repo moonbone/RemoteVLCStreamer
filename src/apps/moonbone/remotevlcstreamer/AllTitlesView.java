@@ -46,15 +46,16 @@ public class AllTitlesView extends AlbumView
 		}
 		ids.deleteCharAt(ids.length()-1);
 		Log.d("ALBUMS",ids.toString());
-		Cursor titlesCursor = getContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+		
+
+		Cursor titleCursor = getContext().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
 				new String[]{Audio.Media.TITLE, Audio.Media._ID,Audio.Media.ALBUM_ID},
 				Audio.Media.ALBUM_ID + " in ("+ ids.toString() +")",
 				null,//new String[]{},
 				albumsCursor.getCount() > 1 ? Audio.Media.TITLE : Audio.Media.TRACK
 				);
-		Log.d("ALBUMS",Long.toString(titlesCursor.getCount()));
-		populateTitlesListImpl(titlesCursor);
-		titlesCursor.close();
+		Log.d("ALBUMS",Long.toString(titleCursor.getCount()));
+		populateTitlesListImpl(titleCursor);
 		albumsCursor.close();
 
 		

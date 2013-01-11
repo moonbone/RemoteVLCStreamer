@@ -1,7 +1,6 @@
 package apps.moonbone.remotevlcstreamer;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -50,6 +49,9 @@ public class ArtistView extends LinearLayout
 	{
 		m_albumsURI = MediaStore.Audio.Artists.Albums.getContentUri("external", artistId);
 		m_artistID = artistId;
+		
+		LinearLayout row = (LinearLayout)findViewById(R.id.artistAlbumArts);
+		row.removeViews(1, row.getChildCount()-1);
 	}
 	public long getArtistID()
 	{
@@ -115,10 +117,6 @@ public class ArtistView extends LinearLayout
 		//get the LinearLayout which will hold the album arts.
 		m_row = (LinearLayout)findViewById(R.id.artistAlbumArts);
 		
-		//remove all current arts from the LinearLayout.
-		//(all subviews, except for the first one which the TextView holding the artist name)
-		m_row.removeViews(1, m_row.getChildCount()-1);
-		
 		//debug log: "%d %s" % (artist ID, artist name)
 		Log.d("showAlbums",Long.toString(m_artistID) + " " + ((TextView)m_row.getChildAt(0)).getText().toString());
 		
@@ -128,6 +126,10 @@ public class ArtistView extends LinearLayout
 		//decide exactly how many arts will be shown. assumes arts are squares and therefore has the width the same as the row's height.
 		int numberOfArtsToShow = (int)(availableSize / getResources().getDimension(R.dimen.row_height));
 		Log.d("numberOfArtsToShow",Integer.toString(numberOfArtsToShow));
+		
+		//remove all current arts from the LinearLayout.
+		//(all subviews, except for the first one which the TextView holding the artist name)
+		//m_row.removeViews(1, m_row.getChildCount()-1);
 		
 		//if there is room for arts:
 		if(0 < numberOfArtsToShow)
@@ -140,7 +142,14 @@ public class ArtistView extends LinearLayout
 	            {
 	            	LinearLayout _row = (LinearLayout)((Object[])message.obj)[0];
 	            	ImageView _iv = (ImageView)((Object[])message.obj)[1];
+	            	if (null != _row.getChildAt(message.what))
+	            	{
+	            		((ImageView)_row.getChildAt(message.what)).setImageDrawable(_iv.getDrawable());
+	            	}
+	            	else
+	            	{
 	           		_row.addView(_iv);
+	            	}
 	       
 	            }
 	           

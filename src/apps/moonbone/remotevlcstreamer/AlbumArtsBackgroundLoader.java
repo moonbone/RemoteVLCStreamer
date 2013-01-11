@@ -1,8 +1,6 @@
 package apps.moonbone.remotevlcstreamer;
 
 import android.content.ContentResolver;
-import android.content.Context;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -12,7 +10,6 @@ import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.support.v4.app.Fragment;
 
 public class AlbumArtsBackgroundLoader extends Thread {
 
@@ -40,6 +37,7 @@ public class AlbumArtsBackgroundLoader extends Thread {
     		
         	Cursor albumsCursor = m_resolver.query(m_albumsURI, new String[]{Audio.Albums.ALBUM_ART},null,null,null);
 			albumsCursor.moveToFirst();
+			int childNumber = 1;
 			while (0 < m_spaceLeft && !albumsCursor.isAfterLast())
 			{
 				if (isInterrupted())
@@ -50,12 +48,13 @@ public class AlbumArtsBackgroundLoader extends Thread {
 				ImageView iv = new ImageView(m_context.getContext());
 				iv.setAdjustViewBounds(true);
 				iv.setImageDrawable(Drawable.createFromPath(albumsCursor.getString(0)));
-				//fetchDrawableOnThread(albumsCursor.getString(0), iv);
-				Message message = m_UIHandler.obtainMessage(0, new Object[]{m_context,iv});
+
+				Message message = m_UIHandler.obtainMessage(childNumber, new Object[]{m_context,iv});
 	            m_UIHandler.sendMessage(message);
-				//row.addView(iv);
+	            
 				
 				albumsCursor.moveToNext();
+				++childNumber;
 				--m_spaceLeft;
 			}
 			albumsCursor.close();

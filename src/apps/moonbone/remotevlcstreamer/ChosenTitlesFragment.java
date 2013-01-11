@@ -1,6 +1,5 @@
 package apps.moonbone.remotevlcstreamer;
 
-import java.util.Iterator;
 import java.util.TreeSet;
 
 import android.os.Bundle;
@@ -8,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class ChosenTitlesFragment extends Fragment {
 	

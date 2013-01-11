@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".VLCControlTab" >
+   
+    <Switch
+        android:id="@+id/shuffleSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/row_height"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:checked="false"
+        android:text="@string/switch_shuffle" />
+
+    <Switch
+        android:id="@+id/repeatSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/row_height"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/shuffleSwitch"
+        android:checked="false"
+        android:text="@string/switch_repeat" />
+
+	<FrameLayout
+	      android:id="@+id/mediaControlPlaceHolder"
+	      android:layout_width="match_parent"
+	      android:layout_height="100dp"
+	      android:layout_alignParentBottom="true"  />
+      
+      <VerticalSeekBar
+          android:id="@+id/volumeBar"
+          android:layout_width="@dimen/row_height"
+          android:layout_height="wrap_content"
+          android:layout_above="@id/mediaControlPlaceHolder"
+          android:layout_alignParentLeft="true"
+          android:layout_alignTop="@id/shuffleSwitch" />
+
+    
+ </RelativeLayout>

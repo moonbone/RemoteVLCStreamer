@@ -25,41 +25,50 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int albumArt=0x7f090004;
-        public static final int albumName=0x7f090003;
-        public static final int albumsTitles=0x7f090005;
-        public static final int artistAlbumArts=0x7f090006;
-        public static final int artistName=0x7f090007;
-        public static final int artistsAlbums=0x7f090008;
+        public static final int albumArt=0x7f090008;
+        public static final int albumName=0x7f090007;
+        public static final int albumsTitles=0x7f090009;
+        public static final int artistAlbumArts=0x7f09000a;
+        public static final int artistName=0x7f09000b;
+        public static final int artistsAlbums=0x7f09000c;
         public static final int artistsLists=0x7f090002;
-        public static final int menu_settings=0x7f09000a;
+        public static final int mediaControlPlaceHolder=0x7f090005;
+        public static final int menu_settings=0x7f09000e;
         public static final int pager=0x7f090000;
         public static final int pager_title_strip=0x7f090001;
-        public static final int title_name=0x7f090009;
+        public static final int repeatSwitch=0x7f090004;
+        public static final int shuffleSwitch=0x7f090003;
+        public static final int title_name=0x7f09000d;
+        public static final int volumeBar=0x7f090006;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int fragment_music_tab=0x7f030001;
-        public static final int music_artist_album_list_item_layout=0x7f030002;
-        public static final int music_artist_list_item_layout=0x7f030003;
-        public static final int music_title_layout=0x7f030004;
+        public static final int fragment_vlc_control_tab=0x7f030002;
+        public static final int music_artist_album_list_item_layout=0x7f030003;
+        public static final int music_artist_list_item_layout=0x7f030004;
+        public static final int music_title_layout=0x7f030005;
     }
     public static final class menu {
         public static final int activity_main=0x7f080000;
         public static final int fragment_music_tab=0x7f080001;
     }
     public static final class string {
-        public static final int all_albums=0x7f060009;
-        public static final int all_artists=0x7f06000a;
-        public static final int all_titles=0x7f060008;
+        public static final int all_albums=0x7f06000a;
+        public static final int all_artists=0x7f06000b;
+        public static final int all_titles=0x7f060009;
         public static final int app_name=0x7f060000;
         public static final int hello_world=0x7f060004;
+        public static final int ip_choose_OK=0x7f06000e;
         public static final int menu_settings=0x7f060005;
+        public static final int switch_repeat=0x7f06000d;
+        public static final int switch_shuffle=0x7f06000c;
+        public static final int title_fragment_chosen_titles_tab=0x7f060007;
         public static final int title_fragment_music_tab=0x7f060006;
+        public static final int title_fragment_vlc_control_tab=0x7f060008;
         public static final int title_section1=0x7f060003;
         public static final int title_section2=0x7f060002;
         public static final int title_section3=0x7f060001;
-        public static final int title_section_chosen_titles_tab=0x7f060007;
     }
     public static final class style {
         /** 
