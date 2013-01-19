@@ -7,14 +7,20 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class OrderedTitleList extends LinearLayout {
+public class OrderedTitleList extends ScrollView {
+	
+	private LinearLayout m_ll;
 	
 	public OrderedTitleList(Context context,Iterator<Long> iter)
 	{
 		super(context);
-		setOrientation(VERTICAL);
+		m_ll = new LinearLayout(context);
+		m_ll.setOrientation(LinearLayout.VERTICAL);
+		
+		addView(m_ll);
 		
 		repopulateTitleList(iter);
 		
@@ -22,11 +28,11 @@ public class OrderedTitleList extends LinearLayout {
 	
 	public void repopulateTitleList(Iterator<Long> iter)
 	{
-		removeAllViews();
+		m_ll.removeAllViews();
 		for(;iter.hasNext();)
 		{
 			Long currentTitleID = iter.next();
-			addView(getTitleViewByID(currentTitleID));
+			m_ll.addView(getTitleViewByID(currentTitleID));
 		}		
 	}
 	

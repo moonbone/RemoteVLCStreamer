@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -25,10 +26,8 @@ import android.provider.MediaStore;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Xml;
-import android.view.View;
 import android.widget.MediaController;
 import android.widget.SeekBar;
-import android.widget.VerticalSeekBar;
 import apps.moonbone.remotevlcstreamer.VLCControlFragment.ControlStatus;
 
 
@@ -47,6 +46,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 	private int m_position;
 	private int m_length;
 	private int m_volume;
+	private String m_titleName;
 	
 	//playlist atts:
 	private int m_current;
@@ -115,11 +115,18 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 						try
 						{
 							m_current = Integer.valueOf(attributes.getValue("id"));
+							m_titleName = attributes.getValue("name");
 						}
 						catch (NumberFormatException e)
 						{
 							m_current = 0;
+							m_titleName = "";
 						}
+					}
+					
+					if( m_retValhandler != null )
+					{
+						m_retValhandler.sendMessage(m_retValhandler.obtainMessage(0, attributes.getValue("uri")));
 					}
 				}
 				
@@ -149,6 +156,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 		private URI m_uriToGet;
 		private int m_interval;
 		AndroidHttpClient m_httpClient;
+		private boolean m_stopNext;
 
 		
 		public HttpXMLGetter(Handler resultHandler, URI xmlToGet, AndroidHttpClient httpClient, int interval)
@@ -158,7 +166,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 			m_uriToGet = xmlToGet;
 			m_httpClient = httpClient;
 			m_interval = interval;
-			
+			m_stopNext = false;
 			
 		}
 		
@@ -188,8 +196,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 			{
 				return ControlStatus.VOLUME;
 			}
-			
-			
+					
 			throw new Exception("No such control");
 			
 		}
@@ -209,9 +216,23 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 				{
 					Log.d("XMLGetter",e.toString());
 				}
-				try{sleep(m_interval);}catch(InterruptedException e){return;}
+				
+				if(m_stopNext)
+				{
+					break;
+				}
+				
+				try{sleep(m_interval);}catch(InterruptedException e){break;}
+				
+				
 			}
+
 			
+		}
+		
+		public synchronized void interruptAfterNext()
+		{
+			m_stopNext = true;
 		}
 	}
 	
@@ -279,7 +300,10 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 
 						m_volume = newVolume;
 						
-						m_volumeBar.setProgress(m_volume);
+						if(null != m_volumeBar)
+						{
+							m_volumeBar.setProgress(m_volume);
+						}
 					}
 					else
 					{
@@ -295,7 +319,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 				
 				m_status.start();
 				
-				m_playlist = new HttpXMLGetter(h, m_server.resolve(new URI("requests/playlist.xml")), m_httpClient,10000);
+				m_playlist = new HttpXMLGetter(null, m_server.resolve(new URI("requests/playlist.xml")), m_httpClient,4000);
 				
 				m_playlist.start();
 				
@@ -314,43 +338,52 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 		}
 	}
 	
-	public void setVolumeBarView(SeekBar volumeBar) {
-		// TODO Auto-generated method stub
+	
+	public void stopThreads()
+	{
+		m_status.interrupt();
+		m_playlist.interrupt();
+	}
+	
+	
+	public void setVolumeBarView(SeekBar volumeBar)
+	{
 		m_volumeBar = volumeBar;
 		
 		AsyncTask<SeekBar,Void,Void> setMaxVolume = new AsyncTask<SeekBar, Void, Void>()
-				{
+		{
 
-					@Override
-					protected Void doInBackground(SeekBar... params) {
-						try
-						{
-							setVolume(12);
-							while(12 != m_volume)
-							{
-								Thread.sleep(100);
-								
-							}
-							
-							setVolume(9999);
-							while(12 == m_volume)
-							{
-								Thread.sleep(100);
-								
-							}
-							m_volumeBar.setMax(m_volume);
-							setVolume(m_volume/2);
-						}
-						catch(InterruptedException e)
-						{
-							m_volumeBar.setMax(1024);
-							setVolume(512);
-						}
+			@Override
+			protected Void doInBackground(SeekBar... params) {
+				try
+				{
+					setVolume(12);
+					while(12 != m_volume)
+					{
+						Thread.sleep(100);
 						
-						return null;
 					}
 					
-				};
+					setVolume(9999);
+					while(12 == m_volume)
+					{
+						Thread.sleep(100);
+						
+					}
+					m_volumeBar.setMax(m_volume);
+					setVolume(m_volume/2);
+				}
+				catch(InterruptedException e)
+				{
+					m_volumeBar.setMax(1024);
+					setVolume(512);
+				}
+				
+				return null;
+			}
+			
+		};
+		
 		setMaxVolume.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_volumeBar);
 	}
 
@@ -358,23 +391,71 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 	{
 		try
 		{
-			boolean first = true;
-			//empty play list
-			new HttpBackgroundRequester().execute((m_server.resolve(new URI("requests/status.xml?command=pl_empty"))));
+			final boolean first = true;
+			final TreeSet<Long> localRefToTitleSet = chosenTitlesSet;
 			
-			for (Iterator<Long> iter = chosenTitlesSet.iterator();iter.hasNext();)
+			//load current playlist:
+			Handler h = new Handler()
 			{
-				new HttpBackgroundRequester().execute(m_server.resolve(new URI(String.format("requests/status.xml?command=in_%s&input=%s",first ? "play" : "enqueue",URLEncoder.encode(genTitlePath(iter.next()),"UTF-8")))));
-				first = false;
-			}
+				public void handleMessage(Message msg)
+				{
+					String remotePath = URLDecoder.decode((String)msg.obj);
+					String pathSuffix = remotePath.replaceFirst("^.+?:8080/", "%");
+					Cursor c = m_context.getContentResolver().query(
+							MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+							new String[]{MediaStore.Audio.Media.DATA,MediaStore.Audio.Media._ID},
+							MediaStore.Audio.Media.DATA + " like ?", 
+							new String[]{pathSuffix},
+							null);
+					
+					for(c.moveToFirst();!c.isAfterLast();c.moveToNext())
+					{
+						localRefToTitleSet.add(c.getLong(1));
+					}
+					c.close();
+				}
+			};
+			
+			HttpXMLGetter getter = new HttpXMLGetter(h, m_server.resolve(new URI("requests/playlist.xml")), m_httpClient, 1000);
+			getter.start();
+			getter.interruptAfterNext();
+			try{getter.join();}catch(InterruptedException e){}
+			
+			h.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					try
+					{
+						boolean _first = first;
+					
+						//empty play list
+						new HttpBackgroundRequester().execute((m_server.resolve(new URI("requests/status.xml?command=pl_empty"))));
+						
+						for (Iterator<Long> iter = localRefToTitleSet.iterator();iter.hasNext();)
+						{
+							new HttpBackgroundRequester().execute(m_server.resolve(new URI(String.format("requests/status.xml?command=in_%s&input=%s",_first ? "play" : "enqueue",URLEncoder.encode(genTitlePath(iter.next()),"UTF-8")))));
+							_first = false;
+						}
+					}
+					catch(URISyntaxException e)
+					{
+						Log.d("URI Exception",e.toString());
+					}
+					catch(UnsupportedEncodingException e )
+					{
+						Log.d("URI Exception",e.toString());
+					}
+					
+				}
+			});
+			
+			
+			
 			
 	
 		}
 		catch(URISyntaxException e)
-		{
-			Log.d("URI Exception",e.toString());
-		}
-		catch(UnsupportedEncodingException e )
 		{
 			Log.d("URI Exception",e.toString());
 		}
@@ -397,22 +478,31 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 		@SuppressWarnings("deprecation")
 		String deviceIP = Formatter.formatIpAddress( wim.getConnectionInfo().getIpAddress());
 		
-		String retVal = c.getString(0).replaceFirst(".*Music/",String.format("http://%s:8080/",deviceIP)).replaceAll("\'", "%27");
+		String retVal = c.getString(0).replaceFirst(".+?/",String.format("http://%s:8080/",deviceIP)).replaceAll("\'", "%27");
 		
 		c.close();
 		
 		return retVal;
 	}
 
-	public void stopXMLGetters()
+	public String getCurrentPlayingTitleName()
 	{
+		try
+		{
+			String niceLookingStr = (URLDecoder.decode(m_titleName));
+			return niceLookingStr.substring(niceLookingStr.lastIndexOf("/")+1,niceLookingStr.lastIndexOf("."));
+		}
+		catch(NullPointerException e)
+		{
+			return "";
+		}
+		catch(StringIndexOutOfBoundsException e)
+		{
+			return "";
+		}
 
-		m_status.interrupt();
-		
-		m_playlist.interrupt();
-		
 	}
-
+	
 	public int getBufferPercentage()
 	{ 
 		return m_position; 
@@ -514,6 +604,30 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 			{
 				new HttpBackgroundRequester().execute((m_server.resolve(new URI("requests/status.xml?command=pl_pause&id=0"))));
 			}
+		}
+		catch(URISyntaxException e)
+		{
+			Log.d("URI Exception",e.toString());
+		}
+	}
+	
+	public void next()
+	{
+		try
+		{
+			new HttpBackgroundRequester().execute((m_server.resolve(new URI("requests/status.xml?command=pl_next"))));	
+		}
+		catch(URISyntaxException e)
+		{
+			Log.d("URI Exception",e.toString());
+		}
+	}
+	
+	public void prev()
+	{
+		try
+		{
+			new HttpBackgroundRequester().execute((m_server.resolve(new URI("requests/status.xml?command=pl_previous"))));	
 		}
 		catch(URISyntaxException e)
 		{

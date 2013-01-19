@@ -25,16 +25,28 @@
 	<FrameLayout
 	      android:id="@+id/mediaControlPlaceHolder"
 	      android:layout_width="match_parent"
-	      android:layout_height="100dp"
+	      android:layout_height="150dp"
 	      android:layout_alignParentBottom="true"  />
-      
-      <VerticalSeekBar
-          android:id="@+id/volumeBar"
-          android:layout_width="@dimen/row_height"
-          android:layout_height="wrap_content"
-          android:layout_above="@id/mediaControlPlaceHolder"
-          android:layout_alignParentLeft="true"
-          android:layout_alignTop="@id/shuffleSwitch" />
 
+	<TextView
+	    android:id="@+id/currentTitleNameText"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@id/mediaControlPlaceHolder"
+	    android:layout_centerHorizontal="true"
+	    android:gravity="center"
+	    android:singleLine="true"
+	    android:text=""
+	    android:textSize="24sp" />
+     
+     <VerticalSeekBar
+         android:id="@+id/volumeBar"
+         android:layout_width="@dimen/row_height"
+         android:layout_height="wrap_content"
+         android:layout_above="@id/currentTitleNameText"
+         android:layout_alignParentLeft="true"
+         android:layout_alignTop="@id/shuffleSwitch" />
+
+     
     
  </RelativeLayout>

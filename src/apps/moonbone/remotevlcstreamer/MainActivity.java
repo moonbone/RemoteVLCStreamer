@@ -1,6 +1,5 @@
 package apps.moonbone.remotevlcstreamer;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,11 +12,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.jibble.simplewebserver.SimpleWebServer;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +46,11 @@ public class MainActivity extends FragmentActivity {
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	
+	/**
+	 * The {@link ViewPager} that will host the section contents.
+	 */
+	ViewPager mViewPager;
+	
 	TreeSet<Long> m_chosenTitles;
 	
 	//Fragments:
@@ -54,8 +58,10 @@ public class MainActivity extends FragmentActivity {
 	VLCControlFragment m_vlcFragment;
 	MusicTabFragment m_musicFragment;
 	
+	VlcPlayerInterface m_vlcInterface;
 	
-	SimpleWebServer m_httpServer;
+	
+	HttpServerService m_httpServer;
 	public boolean m_paused;
 	String m_vlcServerIP;
 	Thread m_ipScannerThread;
@@ -97,11 +103,7 @@ public class MainActivity extends FragmentActivity {
 	    }
 	    return super.onKeyDown(keyCode, event);
 	}
-	
-	/**
-	 * The {@link ViewPager} that will host the section contents.
-	 */
-	ViewPager mViewPager;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,14 +111,7 @@ public class MainActivity extends FragmentActivity {
 		
 		m_chosenTitles = new TreeSet<Long>();
 		
-		try
- 		{
-			m_httpServer = new SimpleWebServer(new File("/extSdCard/Music/"), 8080);
-		}
-		catch (IOException e)
-		{
-			Log.d("HTTP SERVER","Unable to start server");
-		}
+		startService(new Intent(this,HttpServerService.class));
 
 		setContentView(R.layout.activity_main);
 
@@ -131,27 +126,27 @@ public class MainActivity extends FragmentActivity {
 		
 		getServerIPfromUser();
 		
-		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		m_wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
-		m_wl.acquire();
-
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		super.onPause();
+		if(null != m_vlcInterface)
+		{
+			m_vlcInterface.stopThreads();
+		}
 		
-		m_httpServer.interrupt();
+		super.onPause();
 		
 	}
 	
 	@Override
 	public void onDestroy()
 	{
-		super.onDestroy();
+		stopService(new Intent(this,HttpServerService.class));
 		
-		m_wl.release();
+		super.onDestroy();	
+		
 	}
 	
 	private void getServerIPfromUser() {
@@ -254,6 +249,15 @@ public class MainActivity extends FragmentActivity {
 		public void onClick(DialogInterface dialog, int whichButton) {
 		  String value = input.getText().toString();
 		  m_vlcServerIP = value;
+		 
+		  if(null != m_vlcInterface)
+		  {
+			  m_vlcInterface.stopThreads();
+		  }
+		  
+		  m_vlcInterface = new VlcPlayerInterface(MainActivity.this);
+		  
+		  m_vlcInterface.populatePlaylist(getChosenTitlesSet());
 		  // Do something with value!
 		  }
 		});
@@ -294,6 +298,7 @@ public class MainActivity extends FragmentActivity {
 				// TODO Auto-generated method stub
 				if(null != m_chosenTab && arg0 == 1)
 				{
+					m_vlcInterface.populatePlaylist(getChosenTitlesSet());
 					m_chosenTab.repopulateFragmentView();
 				}
 				if(null != m_vlcFragment && arg0 != 2)
@@ -302,7 +307,8 @@ public class MainActivity extends FragmentActivity {
 				}
 				if(null != m_vlcFragment && arg0 == 2)
 				{
-					m_vlcFragment.showControls();
+					m_vlcFragment.setVlcPlayerInterface(m_vlcInterface);
+					m_vlcFragment.showControls();					
 				}
 			}
 			
