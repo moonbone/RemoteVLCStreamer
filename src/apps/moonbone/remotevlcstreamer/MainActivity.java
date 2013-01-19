@@ -189,11 +189,11 @@ public class MainActivity extends FragmentActivity {
 				HttpParams httpParameters = new BasicHttpParams();
 				// Set the timeout in milliseconds until a connection is established.
 				// The default value is zero, that means the timeout is not used. 
-				int timeoutConnection = 100;
+				int timeoutConnection = 300;
 				HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 				// Set the default socket timeout (SO_TIMEOUT) 
 				// in milliseconds which is the timeout for waiting for data.
-				int timeoutSocket = 100;
+				int timeoutSocket = 300;
 				HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 				
 				DefaultHttpClient client = new DefaultHttpClient(httpParameters);
@@ -245,21 +245,26 @@ public class MainActivity extends FragmentActivity {
 		
 		alert.setView(input);
 
-		alert.setPositiveButton(R.string.ip_choose_OK, new DialogInterface.OnClickListener() {
-		public void onClick(DialogInterface dialog, int whichButton) {
-		  String value = input.getText().toString();
-		  m_vlcServerIP = value;
-		 
-		  if(null != m_vlcInterface)
-		  {
-			  m_vlcInterface.stopThreads();
-		  }
-		  
-		  m_vlcInterface = new VlcPlayerInterface(MainActivity.this);
-		  
-		  m_vlcInterface.populatePlaylist(getChosenTitlesSet());
-		  // Do something with value!
-		  }
+		alert.setPositiveButton(R.string.ip_choose_OK, new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int whichButton)
+			{
+				
+				String value = input.getText().toString();
+				m_vlcServerIP = value;
+				if(null != m_vlcInterface)
+				{
+					m_vlcInterface.stopThreads();
+				}
+				 
+				m_vlcInterface = new VlcPlayerInterface(MainActivity.this);
+				  
+				m_vlcInterface.readPlaylist(getChosenTitlesSet());
+				
+				m_vlcInterface.findMaxVolume();
+	  
+	
+			}
 		});
 
 		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -298,7 +303,7 @@ public class MainActivity extends FragmentActivity {
 				// TODO Auto-generated method stub
 				if(null != m_chosenTab && arg0 == 1)
 				{
-					m_vlcInterface.populatePlaylist(getChosenTitlesSet());
+					//m_vlcInterface.readPlaylist(getChosenTitlesSet());
 					m_chosenTab.repopulateFragmentView();
 				}
 				if(null != m_vlcFragment && arg0 != 2)
@@ -380,6 +385,14 @@ public class MainActivity extends FragmentActivity {
 			}
 			return null;
 		}
+	}
+
+	public void reloadPlaylist() {
+		if(null != m_vlcInterface)
+		{
+			m_vlcInterface.populatePlaylist(getChosenTitlesSet());
+		}
+		
 	}
 
 	

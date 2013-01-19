@@ -16,5 +16,6 @@
     <string name="switch_shuffle">Shuffle</string>
     <string name="switch_repeat">Repeat</string>
     <string name="ip_choose_OK">OK!</string>
+    <string name="repopulate_playlist">Load playlist to player!</string>
 
 </resources>

@@ -62,6 +62,7 @@ public final class R {
         public static final int hello_world=0x7f060004;
         public static final int ip_choose_OK=0x7f06000e;
         public static final int menu_settings=0x7f060005;
+        public static final int repopulate_playlist=0x7f06000f;
         public static final int switch_repeat=0x7f06000d;
         public static final int switch_shuffle=0x7f06000c;
         public static final int title_fragment_chosen_titles_tab=0x7f060007;
