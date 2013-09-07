@@ -13,6 +13,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -165,6 +166,7 @@ public class MainActivity extends FragmentActivity {
 		
 	}
 	
+	@SuppressLint("Wakelock")
 	@Override
 	public void onDestroy()
 	{
@@ -232,8 +234,7 @@ public class MainActivity extends FragmentActivity {
 				@SuppressWarnings("deprecation")
 				String networkSubnet = Formatter.formatIpAddress( wim.getDhcpInfo().ipAddress & wim.getDhcpInfo().netmask);
 
-				// TODO: change start host to 1.
-				for (int host = 100; host < 255 ; ++host)
+				for (int host = 1; host < 255 ; ++host)
 				{
 					if(isInterrupted())
 					{
@@ -315,19 +316,18 @@ public class MainActivity extends FragmentActivity {
 
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
+
 				
 			}
 
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
+
 				
 			}
 
 			@Override
 			public void onPageSelected(int arg0) {
-				// TODO Auto-generated method stub
 				if(null != m_chosenTab && arg0 == 1)
 				{
 					//m_vlcInterface.readPlaylist(getChosenTitlesSet());
