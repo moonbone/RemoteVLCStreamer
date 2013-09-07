@@ -16,9 +16,19 @@ $Id: ServerSideScriptEngine.java,v 1.4 2004/02/01 13:37:35 pjm2 Exp $
 
 package org.jibble.simplewebserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.Socket;
+import java.net.URLDecoder;
+import java.util.Date;
+
+import android.util.Log;
 
 /**
  * Copyright Paul Mutton
@@ -122,10 +132,14 @@ public class RequestThread extends Thread {
                 reader.close();
             }
             out.flush();
+            Log.d("SOCKET","Closing...");
+            _socket.shutdownOutput();
+            
             out.close();
         }
         catch (IOException e) {
-            if (reader != null) {
+            Log.d("SOCKET",e.toString());
+        	if (reader != null) {
                 try {
                     reader.close();
                 }

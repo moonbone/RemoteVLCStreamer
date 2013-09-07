@@ -126,6 +126,10 @@ public class MainActivity extends FragmentActivity {
 		
 		getServerIPfromUser();
 		
+		PowerManager pm = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
+		m_wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VLCRemoteStreamer");
+		m_wl.acquire();
+		
 	}
 	
 	@Override
@@ -141,9 +145,32 @@ public class MainActivity extends FragmentActivity {
 	}
 	
 	@Override
+	public void onResume()
+	{
+		
+		super.onPause();
+		
+		if(null != m_vlcInterface)
+		{
+			try
+			{
+				m_vlcInterface.startThreads();
+			}
+			catch(Exception e)
+			{
+				//TODO: Handle specific exception instead.
+			}
+		}
+	
+		
+	}
+	
+	@Override
 	public void onDestroy()
 	{
 		stopService(new Intent(this,HttpServerService.class));
+		
+		m_wl.release();
 		
 		super.onDestroy();	
 		
@@ -189,11 +216,11 @@ public class MainActivity extends FragmentActivity {
 				HttpParams httpParameters = new BasicHttpParams();
 				// Set the timeout in milliseconds until a connection is established.
 				// The default value is zero, that means the timeout is not used. 
-				int timeoutConnection = 300;
+				int timeoutConnection = 200;
 				HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 				// Set the default socket timeout (SO_TIMEOUT) 
 				// in milliseconds which is the timeout for waiting for data.
-				int timeoutSocket = 300;
+				int timeoutSocket = 200;
 				HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 				
 				DefaultHttpClient client = new DefaultHttpClient(httpParameters);
@@ -206,7 +233,7 @@ public class MainActivity extends FragmentActivity {
 				String networkSubnet = Formatter.formatIpAddress( wim.getDhcpInfo().ipAddress & wim.getDhcpInfo().netmask);
 
 				// TODO: change start host to 1.
-				for (int host = 120; host < 255 ; ++host)
+				for (int host = 100; host < 255 ; ++host)
 				{
 					if(isInterrupted())
 					{

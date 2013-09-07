@@ -129,6 +129,7 @@ public class VLCControlFragment extends Fragment {
 			}
 		});
 		
+
 		((VerticalSeekBar)m_view.findViewById(R.id.volumeBar)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			
 			private int _progressToSet;

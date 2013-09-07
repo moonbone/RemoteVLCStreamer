@@ -36,6 +36,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 	private Context m_context;
 	
 	private HttpXMLGetter m_status,m_playlist;
+	private Handler m_statusHandler;
 	private AndroidHttpClient m_httpClient;
 	private URI m_server;
 	private SeekBar m_volumeBar;
@@ -249,7 +250,7 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 			
 			m_server = new URI(String.format("http://%s:8080/", ((MainActivity)m_context).getVLCServerIP() ));
 			
-			Handler h = new Handler()
+			m_statusHandler = new Handler()
 			{
 				public void handleMessage(Message msg)
 				{
@@ -316,14 +317,8 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 			
 			try
 			{
-				m_status = new HttpXMLGetter(h, m_server.resolve(new URI("requests/status.xml")), m_httpClient,500);
 				
-				m_status.start();
-				
-				m_playlist = new HttpXMLGetter(null, m_server.resolve(new URI("requests/playlist.xml")), m_httpClient,4000);
-				
-				m_playlist.start();
-				
+				startThreads();
 			
 			
 			} catch(Exception e){
@@ -339,6 +334,16 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 		}
 	}
 	
+	public void startThreads() throws Exception
+	{
+		m_status = new HttpXMLGetter(m_statusHandler, m_server.resolve(new URI("requests/status.xml")), m_httpClient,500);
+		
+		m_status.start();
+		
+		m_playlist = new HttpXMLGetter(null, m_server.resolve(new URI("requests/playlist.xml")), m_httpClient,4000);
+		
+		m_playlist.start();
+	}
 	
 	public void stopThreads()
 	{
@@ -635,7 +640,6 @@ class VlcPlayerInterface implements MediaController.MediaPlayerControl
 	@Override
 	public boolean canPause()
 	{
-		// TODO Auto-generated method stub
 		return true;
 	}
 
